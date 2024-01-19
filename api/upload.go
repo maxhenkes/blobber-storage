@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"fmt"
@@ -9,11 +9,12 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/maxhenkes/blobber-storage/processing"
 )
 
 var startTime = time.Now()
 
-func enableUploadRoute() {
+func EnableUploadRoute() {
 	r := gin.Default()
 	r.Use(cors.Default())
 	r.GET("/status", func(c *gin.Context) {
@@ -30,7 +31,7 @@ func enableUploadRoute() {
 		name := form.Value["name"]
 		openedFile, _ := file.Open()
 		rawFile, _ := io.ReadAll(openedFile)
-		ProcessImage(rawFile)
+		processing.ProcessImage(rawFile, file.Filename)
 		log.Println(file.Filename, file.Size, name)
 		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
 	})
