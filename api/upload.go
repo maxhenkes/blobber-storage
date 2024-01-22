@@ -1,28 +1,16 @@
 package api
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"time"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/maxhenkes/blobber-storage/processing"
+	"github.com/maxhenkes/blobber-storage/util"
 )
 
-var startTime = time.Now()
-
-func EnableUploadRoute() {
-	r := gin.Default()
-	r.Use(cors.Default())
-	r.GET("/status", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"version": "0.1.0-SNAPSHOT",
-			"uptime:": time.Since(startTime).Truncate(time.Second).String(),
-		})
-	})
+func EnableUploadRoute(r *gin.Engine) {
 	r.MaxMultipartMemory = 128 << 20
 	r.POST("/upload", func(c *gin.Context) {
 		//single File
@@ -31,10 +19,13 @@ func EnableUploadRoute() {
 		name := form.Value["name"]
 		openedFile, _ := file.Open()
 		rawFile, _ := io.ReadAll(openedFile)
-		processing.ProcessImage(rawFile, file.Filename)
+
+		hash := util.ComputeHashFromFile(&rawFile)
+
+		go processing.ProcessImage(rawFile, hash)
+
 		log.Println(file.Filename, file.Size, name)
-		c.String(http.StatusOK, fmt.Sprintf("'%s' uploaded!", file.Filename))
+		c.JSON(http.StatusOK, gin.H{"code": 200, "msg": "", "data": hash})
 	})
-	r.Run()
-	//http.ListenAndServe(":8080", r) // listen and serve on 0.0.0.0:8080
+
 }
