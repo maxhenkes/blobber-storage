@@ -30,6 +30,9 @@
         /** @type {Parameters<fetch>[1]} */
         const fetchOptions = {
             method: form.method,
+            headers: {
+                "Token": "test-1234-token"
+            },
             body: formData,
         };
 
