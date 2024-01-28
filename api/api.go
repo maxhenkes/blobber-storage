@@ -1,12 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gofiber/fiber/v3/middleware/logger"
 )
 
 func StartWebserver() {
@@ -26,18 +28,32 @@ func startGin() {
 
 func startFiber() {
 	app := fiber.New()
+	app.Use(logger.New())
+	app.Server().MaxRequestBodySize = 100 * 1024 * 1024
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowOriginsFunc: func(origin string) bool {
-			return os.Getenv("ENVIRONMENT") == "development"
-		},
 		AllowMethods: "Origin, Content-Type, Accept, Token",
 	}))
+	app.Use("/upload", func(c fiber.Ctx) error {
+		fmt.Println("Token info: ")
+		fmt.Println(c.Get("Token"))
+		reqToken := c.Get("Token")
+
+		if reqToken == "" {
+			return c.SendStatus(401)
+		}
+		if reqToken != "test-1234-token" {
+			return c.SendStatus(401)
+		}
+
+		return c.Next()
+	})
 	EnableUploadRouteF(app)
 	app.Get("/", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{"test": "test"})
 	})
-	app.Listen(":3007")
+
+	app.Listen(":3010")
 
 }
 

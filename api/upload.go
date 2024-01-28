@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/cors"
 	"github.com/maxhenkes/blobber-storage/processing"
 	"github.com/maxhenkes/blobber-storage/util"
 )
@@ -35,7 +34,7 @@ func EnableUploadRoute(r *gin.Engine) {
 }
 
 func EnableUploadRouteF(app *fiber.App) {
-	app.Post("/upload", cors.New(), func(c fiber.Ctx) error {
+	app.Post("/upload", func(c fiber.Ctx) error {
 		log.Println("Route")
 		file, err := c.FormFile("file")
 		if err != nil {
