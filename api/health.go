@@ -3,17 +3,16 @@ package api
 import (
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
 var startTime = time.Now()
 
-func EnableHealthRoute(r *gin.Engine) {
-	r.GET("/status", func(c *gin.Context) {
-		c.JSON(200, gin.H{
+func EnableHealthRoute(app *fiber.App) {
+	app.Get("/status", func(c fiber.Ctx) error {
+		return c.JSON(&fiber.Map{
 			"version": "0.1.0-SNAPSHOT",
 			"uptime:": time.Since(startTime).Truncate(time.Second).String(),
 		})
 	})
-
 }

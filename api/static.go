@@ -3,10 +3,10 @@ package api
 import (
 	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
 )
 
-func EnableStaticRoute(r *gin.Engine) {
+func EnableStaticRoute(app *fiber.App) {
 	path := os.Getenv("PATH_STORAGE")
-	r.Static("/images", path)
+	app.Static("/images", path)
 }

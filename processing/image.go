@@ -8,21 +8,26 @@ import (
 	"github.com/h2non/bimg"
 )
 
-func ProcessImage(uploadedImage []byte, hash string) error {
-	isProcessed := doesFileExist(hash, "thumb", "jpeg")
+type Image struct {
+	Data []byte
+	Hash string
+}
+
+func ProcessImage(image Image) error {
+	isProcessed := doesFileExist(image.Hash, "thumb", "jpeg")
 
 	if isProcessed {
-		log.Printf("Image %s already processed, skipping...", hash)
+		log.Printf("Image %s already processed, skipping...", image.Hash)
 		return nil
 	}
 
 	conf := GetConfigurations()
 
-	newImage := bimg.NewImage(uploadedImage)
+	newImage := bimg.NewImage(image.Data)
 	for _, c := range conf {
 		img := set_image_scale(*newImage, c)
-		SaveWithFormat(c.name, hash, img, bimg.JPEG)
-		SaveWithFormat(c.name, hash, img, bimg.WEBP)
+		SaveWithFormat(c.name, image.Hash, img, bimg.JPEG)
+		SaveWithFormat(c.name, image.Hash, img, bimg.WEBP)
 	}
 	return nil
 }
