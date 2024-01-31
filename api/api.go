@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
@@ -20,27 +21,28 @@ func startFiber() {
 		AllowOrigins: "*",
 		AllowMethods: "Origin, Content-Type, Accept, Token",
 	}))
-	app.Use("/upload", func(c fiber.Ctx) error {
-		fmt.Println("Token info: ")
-		fmt.Println(c.Get("Token"))
-		reqToken := c.Get("Token")
 
-		if reqToken == "" {
-			return c.SendStatus(401)
-		}
-		if reqToken != "test-1234-token" {
-			return c.SendStatus(401)
-		}
-
-		return c.Next()
-	})
 	EnableUploadRoute(app)
 	EnableStaticRoute(app)
 	EnableHealthRoute(app)
-	app.Get("/", func(c fiber.Ctx) error {
-		return c.JSON(fiber.Map{"test": "test"})
-	})
+	EnableManageRoutes(app)
 
 	app.Listen(":3010")
 
+}
+
+func TokenMiddleware(c fiber.Ctx) error {
+	fmt.Println("Token info: ")
+	fmt.Println(c.Get("Token"))
+	appToken := os.Getenv("ACCESS_TOKEN")
+	reqToken := c.Get("Token")
+
+	if reqToken == "" {
+		return c.SendStatus(401)
+	}
+	if reqToken != appToken {
+		return c.SendStatus(401)
+	}
+
+	return c.Next()
 }

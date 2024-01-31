@@ -37,5 +37,5 @@ func EnableUploadRoute(app *fiber.App) {
 		go processing.ProcessImage(image)
 		log.Println(file.Filename, file.Size, name)
 		return c.Status(fiber.StatusAccepted).JSON(&fiber.Map{"data": hash})
-	})
+	}, TokenMiddleware)
 }
