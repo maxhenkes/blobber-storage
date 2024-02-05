@@ -1,23 +1,35 @@
 package processing
 
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+)
+
+var config Config
+
+type Config struct {
+	Configs []Image_config `json:"configs"`
+}
+
 type Image_config struct {
-	height int
-	width  int
-	name   string
+	Height int    `json:"height"`
+	Width  int    `json:"width"`
+	Name   string `json:"name"`
 }
 
-type Image_crop struct {
-	height int
-	width  int
-}
-
-func GetConfigurations() *[4]Image_config {
-	thumb := Image_config{800, 800, "thumb"}
-	small := Image_config{1200, 1200, "small"}
-	medium := Image_config{1800, 1800, "medium"}
-	large := Image_config{2400, 2400, "large"}
-
-	configurations := [4]Image_config{thumb, small, medium, large}
-
-	return &configurations
+func LoadConfiguration(file string) {
+	fmt.Println("Loading configuration file...")
+	var localConfig Config
+	configFile, err := os.Open(file)
+	if err != nil {
+		fmt.Println("Error loading configuration file...")
+		fmt.Println(err.Error())
+		configFile.Close()
+		panic("Cannot start without configuration file...")
+	}
+	defer configFile.Close()
+	jsonParser := json.NewDecoder(configFile)
+	jsonParser.Decode(&localConfig)
+	config = localConfig
 }

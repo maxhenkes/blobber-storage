@@ -32,8 +32,5 @@ func doesFileExist(hash string, size string, format string) bool {
 	path := os.Getenv("PATH_STORAGE")
 	filePath := fmt.Sprintf("%s%s", path, hash)
 	_, err := os.Stat(filePath)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return true
+	return os.IsNotExist(err)
 }

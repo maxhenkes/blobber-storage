@@ -21,13 +21,11 @@ func ProcessImage(image Image) error {
 		return nil
 	}
 
-	conf := GetConfigurations()
-
 	newImage := bimg.NewImage(image.Data)
-	for _, c := range conf {
+	for _, c := range config.Configs {
 		img := set_image_scale(*newImage, c)
-		SaveWithFormat(c.name, image.Hash, img, bimg.JPEG)
-		SaveWithFormat(c.name, image.Hash, img, bimg.WEBP)
+		SaveWithFormat(c.Name, image.Hash, img, bimg.JPEG)
+		SaveWithFormat(c.Name, image.Hash, img, bimg.WEBP)
 	}
 	return nil
 }
@@ -40,9 +38,9 @@ func set_image_scale(image bimg.Image, conf Image_config) *bimg.Image {
 	}
 	scaler := max(size.Height, size.Width)
 	fmt.Println(scaler)
-	factor := float64(conf.height) / float64(scaler)
+	factor := float64(conf.Height) / float64(scaler)
 	fmt.Println(factor)
-	resizedImg, err := image.Resize(int(math.Round(float64(size.Width)*factor)), int(math.Round(float64(size.Height)*factor)))
+	resizedImg, _ := image.Resize(int(math.Round(float64(size.Width)*factor)), int(math.Round(float64(size.Height)*factor)))
 
 	return bimg.NewImage(resizedImg)
 

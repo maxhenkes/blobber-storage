@@ -1,0 +1,24 @@
+{
+    "configs": [
+        {
+            "height": 800,
+            "width": 800,
+            "name": "thumb"
+        },
+        {
+            "height": 1200,
+            "width": 1200,
+            "name": "small"
+        },
+        {
+            "height": 1800,
+            "width": 1800,
+            "name": "medium"
+        },
+        {
+            "height": 4400,
+            "width": 4400,
+            "name": "large"
+        }
+    ]
+}
