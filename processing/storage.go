@@ -1,7 +1,9 @@
 package processing
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -28,41 +30,29 @@ func SaveWithFormat(size string, name string, image *bimg.Image, format bimg.Ima
 	return nil
 }
 
-func doesFileExist(hash string) bool {
-	path := os.Getenv("PATH_STORAGE")
-	filePath := fmt.Sprintf("%s%s", path, hash)
-	_, err := os.Stat(filePath)
-	return !os.IsNotExist(err)
-}
-
-func CheckAndReturnConfig(hash string) Config {
+func CheckAndReturnConfig(hash string) *Config {
 	path := os.Getenv("PATH_STORAGE")
 	filePath := fmt.Sprintf("%s%s", path, hash)
 	_, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
-		return Config{}
+		return &config
 	}
 
-	files, err := os.ReadDir(fmt.Sprintf("%s%s/", path, hash))
 	if err != nil {
-		return Config{}
+		return &Config{}
 	}
-	bConfig := config.Configs
 	aConfig := []Image_config{}
+	pathBaseString := fmt.Sprintf("%s%s/", path, hash)
 
-	for _, conf := range bConfig {
-		found := false
-		for _, file := range files {
+	for _, conf := range config.Configs {
 
-			if file.Name() == fmt.Sprintf("%s-%s.jpeg", hash, conf.Name) {
-				found = true
-				break
-			}
+		pathString := fmt.Sprintf("%s%s-%s.jpeg", pathBaseString, hash, conf.Name)
 
-		}
-		if !found {
+		_, err := os.Stat(pathString)
+		if errors.Is(err, fs.ErrNotExist) {
 			aConfig = append(aConfig, conf)
 		}
+
 	}
-	return Config{aConfig}
+	return &Config{aConfig}
 }
