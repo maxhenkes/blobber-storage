@@ -28,9 +28,41 @@ func SaveWithFormat(size string, name string, image *bimg.Image, format bimg.Ima
 	return nil
 }
 
-func doesFileExist(hash string, size string, format string) bool {
+func doesFileExist(hash string) bool {
 	path := os.Getenv("PATH_STORAGE")
 	filePath := fmt.Sprintf("%s%s", path, hash)
 	_, err := os.Stat(filePath)
-	return os.IsNotExist(err)
+	return !os.IsNotExist(err)
+}
+
+func CheckAndReturnConfig(hash string) Config {
+	path := os.Getenv("PATH_STORAGE")
+	filePath := fmt.Sprintf("%s%s", path, hash)
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		return Config{}
+	}
+
+	files, err := os.ReadDir(fmt.Sprintf("%s%s/", path, hash))
+	if err != nil {
+		return Config{}
+	}
+	bConfig := config.Configs
+	aConfig := []Image_config{}
+
+	for _, conf := range bConfig {
+		found := false
+		for _, file := range files {
+
+			if file.Name() == fmt.Sprintf("%s-%s.jpeg", hash, conf.Name) {
+				found = true
+				break
+			}
+
+		}
+		if !found {
+			aConfig = append(aConfig, conf)
+		}
+	}
+	return Config{aConfig}
 }

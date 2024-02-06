@@ -1,8 +1,8 @@
 package processing
 
 import (
+	"errors"
 	"fmt"
-	"log"
 	"math"
 
 	"github.com/h2non/bimg"
@@ -14,15 +14,14 @@ type Image struct {
 }
 
 func ProcessImage(image Image) error {
-	isProcessed := doesFileExist(image.Hash, "thumb", "jpeg")
-
-	if isProcessed {
-		log.Printf("Image %s already processed, skipping...", image.Hash)
-		return nil
+	if len(config.Configs) == 0 {
+		return errors.New("cannot check if file exists because config is empty")
 	}
 
+	leftConfig := CheckAndReturnConfig(image.Hash)
+
 	newImage := bimg.NewImage(image.Data)
-	for _, c := range config.Configs {
+	for _, c := range leftConfig.Configs {
 		img := set_image_scale(*newImage, c)
 		SaveWithFormat(c.Name, image.Hash, img, bimg.JPEG)
 		SaveWithFormat(c.Name, image.Hash, img, bimg.WEBP)
